@@ -8,14 +8,14 @@ function filmLayout(title, episode, crawl) {
         <h1 class="title">${title}</h1>
         <h2 class="subtitle">Episode: ${episode}</h2>
         <p>${crawl}</p>
+        <button class="button is-primary is-outlined is-loading">Characters:</button>
         </div>`
     return section;
 }
 
 function charLayout(chararr) {
     let characters = document.createElement('p');
-    characters.innerHTML = `
-        <strong>Characters:</strong> ${chararr.join(', ')}`
+    characters.innerHTML = `${chararr.join(', ')}`
     return characters;
 }
 
@@ -42,20 +42,18 @@ function getXHJSON(url) {
     })
 }
 
-let chars;
 
 getXHJSON('https://swapi.co/api/films/').then(res => {
     let {results} = res;
-    console.log(results);
     results.forEach(el => {
         let film = filmLayout(el.title, el.episode_id, el.opening_crawl);
-        chars = el.characters;
         let promiseChars = [];
         el.characters.forEach(char => promiseChars.push(getXHJSON(char)));
         Promise.all(promiseChars).then(val => {
             let filmChars = []
             val.forEach(v => filmChars.push(v.name));
             film.getElementsByTagName('div')[0].appendChild(charLayout(filmChars));
+            film.getElementsByClassName('is-loading')[0].classList.remove('is-loading');
         })
         films.appendChild(film);
     })
