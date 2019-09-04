@@ -19,44 +19,20 @@ function charLayout(chararr) {
     return characters;
 }
 
-function getXHJSON(url) {
-    return new Promise (function(resolve, reject) {
-        let req = new XMLHttpRequest;
-        req.open('GET', url);
-        req.onload = function() {
-            if (req.readyState === XMLHttpRequest.DONE) {
-                if (req.status === 200) {
-                    resolve(JSON.parse(req.response));
-                } else {
-                    reject(Error(req.statusText));
-                }
-            }
-        };
-
-        req.onerror = function() {
-            reject(Error("Network Error"));
-          };
-        
-        req.send();
-
-    })
-}
-
-
-getXHJSON('https://swapi.co/api/films/')
+axios.get('https://swapi.co/api/films/')
     .then(res => {
-        let {results} = res;
+        let {results} = res.data;
         results.forEach(el => {
             let film = filmLayout(el.title, el.episode_id, el.opening_crawl);
             let promiseChars = [];
-            el.characters.forEach(char => promiseChars.push(getXHJSON(char)));
+            el.characters.forEach(char => promiseChars.push(axios.get(char)));
             Promise.all(promiseChars)
                 .then(val => {
                     let filmChars = []
-                    val.forEach(v => filmChars.push(v.name));
+                    val.forEach(v => filmChars.push(v.data.name));
                     film.getElementsByTagName('div')[0].appendChild(charLayout(filmChars));
                     film.getElementsByClassName('is-loading')[0].classList.remove('is-loading');
             })
             films.appendChild(film);
-    })
-});
+        })
+    });
