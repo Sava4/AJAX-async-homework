@@ -25,12 +25,10 @@ axios.get('https://swapi.co/api/films/')
         results.forEach(el => {
             let film = filmLayout(el.title, el.episode_id, el.opening_crawl);
             let promiseChars = [];
-            el.characters.forEach(char => promiseChars.push(axios.get(char)));
+            el.characters.forEach(char => promiseChars.push(axios.get(char).then(ch => ch.data.name)));
             Promise.all(promiseChars)
                 .then(val => {
-                    let filmChars = []
-                    val.forEach(v => filmChars.push(v.data.name));
-                    film.getElementsByTagName('div')[0].appendChild(charLayout(filmChars));
+                    film.getElementsByTagName('div')[0].appendChild(charLayout(val));
                     film.getElementsByClassName('is-loading')[0].classList.remove('is-loading');
             })
             films.appendChild(film);
