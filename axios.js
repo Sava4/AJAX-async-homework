@@ -24,8 +24,7 @@ axios.get('https://swapi.co/api/films/')
         let {results} = res.data;
         results.forEach(el => {
             let film = filmLayout(el.title, el.episode_id, el.opening_crawl);
-            let promiseChars = [];
-            el.characters.forEach(char => promiseChars.push(axios.get(char).then(ch => ch.data.name)));
+            let promiseChars = el.characters.map(char => axios.get(char).then(ch => ch.data.name));
             Promise.all(promiseChars)
                 .then(val => {
                     film.getElementsByTagName('div')[0].appendChild(charLayout(val));

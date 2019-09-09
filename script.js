@@ -48,12 +48,10 @@ getXHJSON('https://swapi.co/api/films/')
         let {results} = res;
         results.forEach(el => {
             let film = filmLayout(el.title, el.episode_id, el.opening_crawl);
-            let promiseChars = [];
-            el.characters.forEach(char => promiseChars.push(getXHJSON(char)));
+            let promiseChars = el.characters.map(char => getXHJSON(char));
             Promise.all(promiseChars)
                 .then(val => {
-                    let filmChars = []
-                    val.forEach(v => filmChars.push(v.name));
+                    let filmChars = val.map(v => v.name);
                     film.getElementsByTagName('div')[0].appendChild(charLayout(filmChars));
                     film.getElementsByClassName('is-loading')[0].classList.remove('is-loading');
             })

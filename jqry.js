@@ -24,13 +24,9 @@ $.get('https://swapi.co/api/films/')
         let {results} = res;
         results.forEach(el => {
             let $film = filmLayout(el.title, el.episode_id, el.opening_crawl);
-            let jqChars = [];
-            el.characters.forEach(char => jqChars.push(char));
-            $.when.apply($, jqChars.map(url => $.get(url)))
+            $.when.apply($, el.characters.map(charurl => $.get(charurl)))
                 .done(function() {
-                    console.log([...arguments]);
-                    let charArr = [];
-                    [...arguments].forEach(el => charArr.push(el[0].name))
+                    let charArr = [...arguments].map(el => el[0].name);
                     $film.find('div').append(charLayout(charArr));
                     $film.find('.is-loading').removeClass('is-loading');
                 })
